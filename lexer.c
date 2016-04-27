@@ -47,6 +47,8 @@ void lexer(FILE *input) {
   char c;
   int sign = 1;
   int num; // 存储读入的数字
+  lex_list[lex_index] = malloc(2);
+  lex_list[lex_index++] = "(";
   while ((c = getc(input)) != EOF) {
     if (c == ';')
       pass_note(input, &c);
@@ -69,5 +71,7 @@ void lexer(FILE *input) {
       continue;
     }
     read_word(input, c);
-  }
+  } //while
+  lex_list[lex_index] = malloc(2);
+  lex_list[lex_index++] = ")";
 }

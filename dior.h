@@ -25,7 +25,7 @@ typedef struct __atom atom;
    原子类型的枚举
 **/
 enum __atom_type {
-  BOOLEAN, NUMBER, STRING, CHARACTER, PAIR, PRIMITIVE_FUNC, SYMBOL
+  BOOLEAN = 1, NUMBER, STRING, CHARACTER, PAIR, PRIMITIVE_FUNC, SYMBOL
 };
 
 /**
@@ -54,10 +54,6 @@ union __atom_data {
   } PAIR;
 
   struct {
-    atom *(*value)(atom *arg);
-  } PRIMITIVE_FUNC;
-
-  struct {
     char *value;
   } SYMBOL;
 };
@@ -65,28 +61,39 @@ union __atom_data {
 struct __atom {
   atom_type type;
   atom_data data;
+  int position;//atom出现在文件中的行数，用来debug
 };
 
-#define IS(type, x) ((x->type == ##type##))
+#define IS(t, x) (x->type == t)
 
-#define DATA(x) (x->data)
+#define DATA(x) x->data
 //根据type类型，获取原子x的实际值
-#define GET_VALUE(type, x) (DATA(x).##type##.value)
+#define GET_VALUE(type, x) (DATA(x).type.value)
 //获取pair的car
 #define CAR(x) (DATA(x).PAIR.car)
 //获取cdr
 #define CDR(x) (DATA(x).PAIR.cdr)
 
-#define SET_VALUE(type, x, v) DATA(x).##type##.value = v;
-#define SET_CAR(x, v) DATA(x).PAIR.car = v;
-#define SET_CDR(x, v) DATA(x).PAIR.cdr = v;
+#define SET_VALUE(type, x, v) (DATA(x).type).value = v
+#define SET_CAR(x, v) DATA(x).PAIR.car = v
+#define SET_CDR(x, v) DATA(x).PAIR.cdr = v
 
-#define MAKE_ATOM(type, x, v)	    \
+#define MAKE_ATOM(t, x, v, p)	    \
   x = (atom*) malloc(sizeof(atom)); \
-  x.type = type; \
-  SET_VALUE(type, x, v)
+  x->type = t; \
+  x->position = p; \
+  SET_VALUE(t, x, v)
+#define MAKE_PAIR(x, car, cdr, p)	    \
+  x = (atom*) malloc(sizeof(atom)); \
+  x->type = PAIR; \
+  x->position = p; \
+  SET_CAR(x, car); \
+  SET_CDR(x, cdr)
+  
 
-#define ERRORF(line, err) fprintf(stderr, "in line %d error : "#err"\n", line);
+#define ERRORF(line, err) \
+  fprintf(stderr, "in line %d error : "#err"\n", line); \
+  exit(-1)
 
 #define MAX_STRING 10000 //词法分析数组的大小
 #define MAX_WORD_SIZE 40 //每个词的大小
@@ -95,5 +102,7 @@ extern char *lex_list[MAX_STRING]; //词法分析结果
 extern int lex_index;
 extern int lex_list_row[MAX_STRING];
 
+extern atom *ast;
 void lexer(FILE *file);
+void parser();
 #endif
