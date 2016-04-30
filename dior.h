@@ -25,7 +25,7 @@ typedef struct __atom atom;
    原子类型的枚举
 **/
 enum __atom_type {
-  BOOLEAN = 1, NUMBER, STRING, CHARACTER, PAIR, PRIMITIVE_FUNC, SYMBOL
+  BOOLEAN = 1, NUMBER, STRING, CHARACTER, PAIR, PRIMITIVE_FUNC, SYMBOL, FUNCTION
 };
 
 /**
@@ -56,6 +56,11 @@ union __atom_data {
   struct {
     char *value;
   } SYMBOL;
+
+  struct {
+    atom *params;
+    atom *body;
+  } FUNCTION;
 };
 
 struct __atom {
@@ -73,6 +78,11 @@ struct __atom {
 #define CAR(x) (DATA(x).PAIR.car)
 //获取cdr
 #define CDR(x) (DATA(x).PAIR.cdr)
+#define CAAR(x) CAR(CAR(x))
+#define CADR(x) CAR(CDR(x))
+#define CADDR(x) CAR(CDR(CDR(x)))
+#define CADDDR(x) CAR(CDR(CDR(CDR(x))))
+#define CDDR(x) CDR(CDR(x))
 
 #define SET_VALUE(type, x, v) (DATA(x).type).value = v
 #define SET_CAR(x, v) DATA(x).PAIR.car = v
@@ -83,6 +93,8 @@ struct __atom {
   x->type = t; \
   x->position = p; \
   SET_VALUE(t, x, v)
+
+
 #define MAKE_PAIR(x, car, cdr, p)	    \
   x = (atom*) malloc(sizeof(atom)); \
   x->type = PAIR; \
@@ -90,6 +102,12 @@ struct __atom {
   SET_CAR(x, car); \
   SET_CDR(x, cdr)
   
+#define MAKE_FUNC(x, p, b, po) \
+  x = (atom*) malloc(sizeof(atom)); \
+  x->type = FUNCTION; \
+  x->position = po;		  \
+  DATA(x).FUNCTION.params = p;	  \
+  DATA(x).FUNCTION.body = b;
 
 #define ERRORF(line, err) \
   fprintf(stderr, "in line %d error : "#err"\n", line); \
@@ -103,6 +121,31 @@ extern int lex_index;
 extern int lex_list_row[MAX_STRING];
 
 extern atom *ast;
+//lexer.c
 void lexer(FILE *file);
+//parser.c
 void parser();
+//env.c
+atom *init_env();
+atom *lookup_variable_value(atom *var, atom *env);
+atom *extend_environment(atom *vars, atom *vals, atom *env);
+void define_variable(atom *var, atom *val, atom *env);
+int set_variable_value(atom *var, atom *val, atom *env);
+
+//eval.c
+atom *eval_sequence(atom *exp, atom *env);
+atom *eval(atom *exp, atom *env);
+atom *eval_lambda(atom *exp, atom *env);
+//apply.c
+atom *apply(atom *exp, atom *env);
+int is_special(atom *exp, const char *type);
+//primitive_func.c
+atom *padd(atom *args, atom *env);
+atom *pmul(atom *args, atom *env);
+atom *psub(atom *args, atom *env);
+atom *pdiv(atom *args, atom *env);
+atom *pequal(atom *args, atom *env, const char *sym);
+//gc.c
+void free_atom(atom *exp);
+
 #endif

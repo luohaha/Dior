@@ -1,7 +1,4 @@
 ;;; normal factorial
-(define (fact n)
-  (if (= n 1)
-      1
-      (* n (fact (- n 1)))))
-
-(define a "asda)
+(begin (define a 7)
+       (define f (lambda (x) (* x x)))
+       (f a))
