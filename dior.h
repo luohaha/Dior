@@ -143,6 +143,7 @@ int set_variable_value(atom *var, atom *val, atom *env);
 atom *eval_sequence(atom *exp, atom *env);
 atom *eval(atom *exp, atom *env);
 atom *eval_lambda(atom *exp, atom *env);
+void make_sure_usage(atom *exp, int num, const char* type);
 //apply.c
 atom *apply(atom *exp, atom *env);
 int is_special(atom *exp, const char *type);
@@ -160,6 +161,11 @@ atom *pprint(atom *exp, atom *env);
 atom *pprintln(atom *exp, atom *env);
 atom *quote(atom *exp, atom *env);
 atom *require(atom *exp, atom *env);
+atom *set_car(atom *exp, atom *env);
+atom *set_cdr(atom *exp, atom *env);
+atom *is_type(atom *exp, atom *env, atom_type type);
+atom *append(atom *exp, atom *env);
+
 //gc.c
 void free_atom(atom *exp);
 //main.c

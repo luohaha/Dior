@@ -51,6 +51,7 @@ int is_variable(atom *exp) {
    执行赋值
 **/
 atom *eval_assignment(atom *exp, atom *env) {
+  make_sure_usage(exp, 3, "set!");
   atom *val = eval(CADDR(exp), env);
   atom *var = CADR(exp);
   if (!IS(SYMBOL, var)) {
@@ -76,6 +77,7 @@ atom *eval_variable(atom *exp, atom *env) {
    执行定义操作
 **/
 atom *eval_definition(atom *exp, atom *env) {
+  make_sure_usage(exp, 3, "define");
   atom *var = CADR(exp);
   atom *val = eval(CADDR(exp), env);
   if (!IS(SYMBOL, var)) {
@@ -92,6 +94,7 @@ atom *eval_definition(atom *exp, atom *env) {
    执行if
 **/
 atom *eval_if(atom *exp, atom *env) {
+  make_sure_usage(exp, 4, "if");
   atom *pre = eval(CADR(exp), env);
   atom *ret;
   if (!IS(BOOLEAN, pre)) {
@@ -218,4 +221,22 @@ atom *eval_sequence(atom *exp, atom *env) {
     list = CDR(list);
   }
   return ret;
+}
+
+/**
+   规则确认
+**/
+void make_sure_usage(atom *exp, int num, const char* type) {
+  if (num == -1)
+    return;
+  int lenght = 0;
+  while (exp != NULL) {
+    lenght++;
+    exp = CDR(exp);
+  }
+  if (num != lenght) {
+    fprintf(stderr, "in line %d, %s 用法不正确", exp->position, type);
+    exit(-1);
+  }
+  return;
 }

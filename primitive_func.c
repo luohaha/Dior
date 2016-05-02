@@ -205,6 +205,23 @@ atom *cdr(atom *exp, atom *env) {
 }
 
 /**
+   append
+**/
+atom *append(atom *exp, atom *env) {
+  atom *first = eval(CADR(exp), env);
+  atom *ret = first;
+  atom *second = eval(CADDR(exp), env);
+  while (IS(PAIR, first) && CDR(first) != NULL) {
+    first = CDR(first);
+  }
+  if (CDR(first) != NULL) {
+    ERRORF(exp->position, append只能作用于list类型);
+  }
+  SET_CDR(first, second);
+  return ret;
+}
+
+/**
    提供给用户的打印操作
 **/
 atom *pprint(atom *exp, atom *env) {
@@ -248,5 +265,49 @@ atom *require(atom *exp, atom *env) {
   //free_atom(ast);
   atom *ret;
   MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}
+
+/**
+   赋值car
+**/
+atom *set_car(atom *exp, atom *env) {
+  atom *list = eval(CADR(exp), env);
+  atom *val = eval(CADDR(exp), env);
+  //printf("t : %d\n", list->type);
+  if (!IS(PAIR, list)) {
+    ERRORF(exp->position, SET-CAR只能作用于list类型);
+  }
+  SET_CAR(list, val);
+  atom *ret;
+  MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}
+
+/**
+   赋值cdr
+**/
+atom *set_cdr(atom *exp, atom *env) {
+  atom *list = eval(CADR(exp), env);
+  atom *val = eval(CADDR(exp), env);
+  //printf("t : %d\n", list->type);
+  if (!IS(PAIR, list)) {
+    ERRORF(exp->position, SET-CAR只能作用于list类型);
+  }
+  SET_CDR(list, val);
+  atom *ret;
+  MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}
+/**
+   类型判断
+**/
+atom *is_type(atom *exp, atom *env, atom_type type) {
+  atom *ret;
+  if (IS(type, CADR(exp))) {
+    MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  } else {
+    MAKE_ATOM(BOOLEAN, ret, 0, exp->position);
+  }
   return ret;
 }

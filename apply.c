@@ -17,40 +17,76 @@ atom *is_primary_func_and_exe(atom *exp, atom *env) {
   if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "+")) == 0) {
     res = padd(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "-")) == 0) {
+    make_sure_usage(exp, 3, "-");
     res = psub(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "*")) == 0) {
     res = pmul(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "/")) == 0) {
+    make_sure_usage(exp, 3, "/");
     res = pdiv(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "=")) == 0) {
+    make_sure_usage(exp, 3, "=");
     res = pequal(exp, env, "=");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), ">")) == 0) {
+    make_sure_usage(exp, 3, ">");
     res = pequal(exp, env, ">");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "<")) == 0) {
+    make_sure_usage(exp, 3, "<");
     res = pequal(exp, env, "<");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), ">=")) == 0) {
+    make_sure_usage(exp, 3, ">=");
     res = pequal(exp, env, ">=");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "<=")) == 0) {
+    make_sure_usage(exp, 3, "<=");
     res = pequal(exp, env, "<=");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "list")) == 0) {
     res = list(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "cons")) == 0) {
+    make_sure_usage(exp, 3, "cons");
     res = cons(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "car")) == 0) {
+    make_sure_usage(exp, 2, "car");
     res = car(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "cdr")) == 0) {
+    make_sure_usage(exp, 2, "cdr");
     res = cdr(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "print")) == 0) {
+    make_sure_usage(exp, 2, "print");
     res = pprint(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "println")) == 0) {
+    make_sure_usage(exp, 2, "println");
     res = pprintln(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "quote")) == 0) {
+    make_sure_usage(exp, 2, "quote");
     res = quote(exp, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "eval")) == 0) {
+    make_sure_usage(exp, 2, "eval");
     res = eval(CADR(exp), env);
     res = eval(res, env);
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "require")) == 0) {
+    make_sure_usage(exp, 2, "require");
     res = require(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "set-car!")) == 0) {
+    make_sure_usage(exp, 3, "set-car!");
+    res = set_car(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "set-cdr!")) == 0) {
+    make_sure_usage(exp, 3, "set-cdr!");
+    res = set_cdr(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "number?")) == 0) {
+    make_sure_usage(exp, 2, "number?");
+    res = is_type(exp, env, NUMBER);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "boolean?")) == 0) {
+    make_sure_usage(exp, 2, "boolean?");
+    res = is_type(exp, env, BOOLEAN);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "string?")) == 0) {
+    make_sure_usage(exp, 2, "string?");
+    res = is_type(exp, env, STRING);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "character?")) == 0) {
+    make_sure_usage(exp, 2, "character?");
+    res = is_type(exp, env, CHARACTER);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "append")) == 0) {
+    make_sure_usage(exp, 3, "append");
+    res = append(exp, env);
   }
   
   return res;
