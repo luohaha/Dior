@@ -8,25 +8,25 @@ A kind of Lisp.
 cd dior & make
 ```
 
-##support
+##Support
 
 ```scheme
-if
-cond
-set!
-define
-quote
-lambda
-begin
-set-car!
-set-cdr!
+if                (if predicate then_value else_value)
+cond              (cond (predicated_1 clause_1) ... (else clause_else))
+set!              (set! var value)
+define            (define var value)
+quote             (quote value)
+lambda            (lambda (x, y, ...) body)
+begin             (begin exp1 exp2 exp3 ...)
+set-car!          (set-car! var value)
+set-cdr!          (set-cdr! var value)
 car
 cdr
 list
 cons
-append
-require
-eval
+append            (append (list ...) (list ...))
+require           (require "filename.dior")
+eval              (eval exp)
 number?
 string?
 boolean?
