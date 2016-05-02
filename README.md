@@ -10,7 +10,7 @@ cd dior & make
 
 ##support
 
-```lisp
+```scheme
 if
 cond
 set!
@@ -48,7 +48,7 @@ println
 
 Fibonacci
 
-```lisp
+```scheme
 ;;第一种递归求fibonacci的方法
 (define fib-1
 	(lambda (n)
