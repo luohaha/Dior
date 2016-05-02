@@ -32,6 +32,25 @@ atom *is_primary_func_and_exe(atom *exp, atom *env) {
     res = pequal(exp, env, ">=");
   } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "<=")) == 0) {
     res = pequal(exp, env, "<=");
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "list")) == 0) {
+    res = list(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "cons")) == 0) {
+    res = cons(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "car")) == 0) {
+    res = car(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "cdr")) == 0) {
+    res = cdr(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "print")) == 0) {
+    res = pprint(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "println")) == 0) {
+    res = pprintln(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "quote")) == 0) {
+    res = quote(exp, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "eval")) == 0) {
+    res = eval(CADR(exp), env);
+    res = eval(res, env);
+  } else if ((cmp = strcmp(GET_VALUE(SYMBOL, CAR(exp)), "require")) == 0) {
+    res = require(exp, env);
   }
   
   return res;
@@ -94,7 +113,10 @@ atom *apply(atom *exp, atom *env) {
       } else {
 	atom *after_eval_args = eval_list_return_list(DATA(value).FUNCTION.params, CDR(exp), env);
 	//执行，返回结果
-	return procedure(DATA(value).FUNCTION.body, DATA(value).FUNCTION.params, after_eval_args, env);
+	ret = procedure(DATA(value).FUNCTION.body, DATA(value).FUNCTION.params, after_eval_args, DATA(value).FUNCTION.env);
+	//回收
+	//free_atom(exp);
+	return ret;
       }
     } else {
       //lambda
@@ -102,12 +124,18 @@ atom *apply(atom *exp, atom *env) {
 	//不是lambda类型，报错
 	ERRORF(exp->position, 此处应该为函数类型);
       }
-      if (!is_special(CAR(exp), "lambda")) {
-	ERRORF(exp->position, 用法不正确);
+      //if (!is_special(CAR(exp), "lambda")) {
+      //	ERRORF(exp->position, 用法不正确);
+      //}
+      atom *lambda = eval(CAR(exp), env);
+      if (!IS(FUNCTION, lambda)) {
+	ERRORF(exp->position, 此处应该为函数);
       }
-      atom *lambda = eval_lambda(CAR(exp), env);
       atom *after_eval_args = eval_list_return_list(DATA(lambda).FUNCTION.params, CDR(exp), env);
-      return procedure(DATA(lambda).FUNCTION.body, DATA(lambda).FUNCTION.params, after_eval_args, env);
+      ret = procedure(DATA(lambda).FUNCTION.body, DATA(lambda).FUNCTION.params, after_eval_args, DATA(lambda).FUNCTION.env);
+      //回收
+      //free_atom(exp);
+      return ret;
     }
   }
 }

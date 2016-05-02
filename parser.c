@@ -4,8 +4,6 @@
    2016/4/27
    语法分析器，根据词法分析器得到的结果，生成AST
 **/
-//栈，用来检查括号
-int si = 0;
 
 atom *ast;
 atom *generate(int *i);
@@ -13,6 +11,9 @@ atom *generate(int *i);
    产生list
 **/
 atom *generate_list(int *i) {
+  if (*i == lex_index) {
+    ERRORF(lex_list_row[(*i)-2], 括号不匹配);
+  }
   atom *n = NULL;
   if (lex_list[*i][0] == ')') {
     return NULL;
@@ -149,7 +150,8 @@ atom *generate(int *i) {
   }
 }
 
-void parser() {
+atom *parser() {
   int i = 0; // 当前读取的位置
   ast = generate(&i);
+  return ast;
 }

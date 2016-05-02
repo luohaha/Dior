@@ -1,0 +1,6 @@
+;(require "math.dior")
+(define a (list 1 2 3))
+(cond ((= (car a) 2) (println a))
+      (else (println (quote a))))
+
+(println a)

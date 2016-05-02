@@ -9,6 +9,8 @@
    回收atom
 **/
 void free_atom(atom *exp) {
+  if (exp == NULL)
+    return;
   if (IS(BOOLEAN, exp)) {
     free(exp);
   } else if (IS(NUMBER, exp)) {

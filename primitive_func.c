@@ -23,6 +23,7 @@ atom *padd(atom *args, atom *env) {
     }
     args = CDR(args);
   }
+  free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -46,6 +47,7 @@ atom *pmul(atom *args, atom *env) {
     }
     args = CDR(args);
   }
+  free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -66,6 +68,7 @@ atom *psub(atom *args, atom *env) {
   } else {
     sum = GET_VALUE(NUMBER, first) - GET_VALUE(NUMBER, second);
   }
+  free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -86,6 +89,7 @@ atom *pdiv(atom *args, atom *env) {
   } else {
     sum = GET_VALUE(NUMBER, first) / GET_VALUE(NUMBER, second);
   }
+  free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -114,6 +118,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
+    free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, ">")) == 0) {
     // >
@@ -123,6 +128,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
+    free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, "<")) == 0) {
     // <
@@ -132,6 +138,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
+    free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, ">=")) == 0) {
     // >=
@@ -141,6 +148,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
+    free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, "<=")) == 0) {
     // <=
@@ -150,8 +158,95 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
+    free_atom(args);
     return res;
   }
   ERRORF(args->position, 比较符号不正确);
 }
 
+/**
+   提供给用户的list操作
+**/
+atom *list(atom *exp, atom *env) {
+  atom *list = CDR(exp);
+  while (list != NULL) {
+    SET_CAR(list, eval(CAR(list), env));
+    list = CDR(list);
+  }
+  return CDR(exp);
+}
+
+/**
+   提供给用户的cons
+**/
+atom *cons(atom *exp, atom *env) {
+  atom *first = eval(CADR(exp), env);
+  atom *second = eval(CADDR(exp), env);
+  atom *ret;
+  MAKE_PAIR(ret, first, second, exp->position);
+  free_atom(exp);
+  return ret;
+}
+
+/**
+   提供给用户的car
+**/
+atom *car(atom *exp, atom *env) {
+  atom *after = eval(CADR(exp), env);
+  return CAR(after);
+}
+
+/**
+   提供给用户的cdr
+**/
+atom *cdr(atom *exp, atom *env) {
+  atom *after = eval(CADR(exp), env);
+  return CDR(after);
+}
+
+/**
+   提供给用户的打印操作
+**/
+atom *pprint(atom *exp, atom *env) {
+  atom *after = eval(CADR(exp), env);
+  print_atom(after);
+  atom *ret;
+  MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}
+
+atom *pprintln(atom *exp, atom *env) {
+  atom *after = eval(CADR(exp), env);
+  print_atom(after);
+  printf("\n");
+  atom *ret;
+  MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}
+
+/**
+   quote
+**/
+atom *quote(atom *exp, atom *env) {
+  return CADR(exp);
+}
+
+/**
+   引入外部文件
+**/
+atom *require(atom *exp, atom *env) {
+  atom *filename = CADR(exp);
+  if (!IS(STRING, filename)) {
+    ERRORF(exp->position, REQUIRE的参数不是文件名);
+  }
+  clean_lex();//清理垃圾
+  FILE *file = file_test(GET_VALUE(STRING, filename));
+  lexer(file);
+  atom *ast = parser();
+  eval_sequence(ast, env);
+  fclose(file);
+  //free_atom(ast);
+  atom *ret;
+  MAKE_ATOM(BOOLEAN, ret, 1, exp->position);
+  return ret;
+}

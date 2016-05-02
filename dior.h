@@ -13,13 +13,13 @@
    字符串string
    字符character
    序对pair
-   原始函数primitive_func
    符号symbol
    自定义函数
 **/
 typedef enum __atom_type atom_type;
 typedef union __atom_data atom_data;
 typedef struct __atom atom;
+typedef struct __pair pair;
 
 /**
    原子类型的枚举
@@ -60,7 +60,9 @@ union __atom_data {
   struct {
     atom *params;
     atom *body;
+    atom *env; //函数的求值环境
   } FUNCTION;
+
 };
 
 struct __atom {
@@ -94,7 +96,12 @@ struct __atom {
   x->position = p; \
   SET_VALUE(t, x, v)
 
-
+#define COPY_ATOM(new, old) \
+  new = (atom*) malloc(sizeof(atom)); \
+  new->type = old->type; \
+  new->position = old->position; \
+  new->data = old->data
+  
 #define MAKE_PAIR(x, car, cdr, p)	    \
   x = (atom*) malloc(sizeof(atom)); \
   x->type = PAIR; \
@@ -102,12 +109,13 @@ struct __atom {
   SET_CAR(x, car); \
   SET_CDR(x, cdr)
   
-#define MAKE_FUNC(x, p, b, po) \
+#define MAKE_FUNC(x, p, b, e, po)    \
   x = (atom*) malloc(sizeof(atom)); \
   x->type = FUNCTION; \
   x->position = po;		  \
   DATA(x).FUNCTION.params = p;	  \
-  DATA(x).FUNCTION.body = b;
+  DATA(x).FUNCTION.body = b;      \
+  DATA(x).FUNCTION.env = e
 
 #define ERRORF(line, err) \
   fprintf(stderr, "in line %d error : "#err"\n", line); \
@@ -120,18 +128,17 @@ extern char *lex_list[MAX_STRING]; //词法分析结果
 extern int lex_index;
 extern int lex_list_row[MAX_STRING];
 
-extern atom *ast;
+//extern atom *ast;
 //lexer.c
 void lexer(FILE *file);
 //parser.c
-void parser();
+atom *parser();
 //env.c
 atom *init_env();
 atom *lookup_variable_value(atom *var, atom *env);
 atom *extend_environment(atom *vars, atom *vals, atom *env);
 void define_variable(atom *var, atom *val, atom *env);
 int set_variable_value(atom *var, atom *val, atom *env);
-
 //eval.c
 atom *eval_sequence(atom *exp, atom *env);
 atom *eval(atom *exp, atom *env);
@@ -145,7 +152,19 @@ atom *pmul(atom *args, atom *env);
 atom *psub(atom *args, atom *env);
 atom *pdiv(atom *args, atom *env);
 atom *pequal(atom *args, atom *env, const char *sym);
+atom *list(atom *exp, atom *env);
+atom *cons(atom *exp, atom *env);
+atom *car(atom *exp, atom *env);
+atom *cdr(atom *exp, atom *env);
+atom *pprint(atom *exp, atom *env);
+atom *pprintln(atom *exp, atom *env);
+atom *quote(atom *exp, atom *env);
+atom *require(atom *exp, atom *env);
 //gc.c
 void free_atom(atom *exp);
+//main.c
+void print_atom(atom *exp);
+FILE *file_test(char *filename);
+void clean_lex();
 
 #endif

@@ -24,11 +24,12 @@ atom *lookup_variable_value_pair(atom *var, atom *env) {
   }
   atom *tmp_env = env;
   atom *f; //每一帧frame
-  while ((f = CAR(tmp_env)) != NULL) {
+  while (tmp_env != NULL) {
     //在每一个frame中寻找
+    f = CAR(tmp_env);
     atom *each_var = CAR(f);
     atom *each_value = CDR(f);
-    while (each_var != NULL) {
+    while (each_var != NULL && each_value != NULL) {
       int cmp = strcmp(GET_VALUE(SYMBOL, CAR(each_var)), GET_VALUE(SYMBOL, var));
       if (cmp == 0)
 	return each_value;
@@ -40,7 +41,6 @@ atom *lookup_variable_value_pair(atom *var, atom *env) {
     //下一frame
     tmp_env = CDR(tmp_env);
   }
-
   //找不到
   return NULL;
 }
@@ -95,7 +95,10 @@ int set_variable_value(atom *var, atom *val, atom *env) {
   if (res == NULL)
     return -1;
   else {
+    free(CAR(res)); //回收原先的数据
     SET_CAR(res, val);
     return 0;
   }
 }
+
+

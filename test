@@ -1,4 +1,0 @@
-;;; normal factorial
-(begin (define a 7)
-       (define f (lambda (x) (* x x)))
-       (f a))

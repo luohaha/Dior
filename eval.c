@@ -28,10 +28,6 @@ int is_special(atom *exp, const char *type) {
   if (IS(PAIR, exp)) {
     //首先要在()中
     atom *first = CAR(exp);
-    //if (!IS(SYMBOL, first)) {
-      //()的开头必须是特殊字符
-    //  ERRORF(first->position, 用法不对);
-    //}
     int cmp = strcmp(GET_VALUE(SYMBOL, first), type);
     if (cmp == 0)
       return 1;
@@ -66,7 +62,16 @@ atom *eval_assignment(atom *exp, atom *env) {
   }
   return NULL;
 }
-
+/**
+   执行变量查找
+**/
+atom *eval_variable(atom *exp, atom *env) {
+  atom *r = lookup_variable_value(exp, env);
+  if (r == NULL) {
+    ERRORF(exp->position, 找不到变量);
+  } else
+    return r;
+}
 /**
    执行定义操作
 **/
@@ -76,7 +81,10 @@ atom *eval_definition(atom *exp, atom *env) {
   if (!IS(SYMBOL, var)) {
     ERRORF(var->position, 被赋值变量格式不正确);
   }
-  define_variable(var, val, env);
+  atom *new_var;
+  COPY_ATOM(new_var, var); //先复制一份，已被后面回收
+  define_variable(new_var, val, env);
+  free_atom(exp); //回收已经被执行完的语句
   return NULL;
 }
 
@@ -85,16 +93,19 @@ atom *eval_definition(atom *exp, atom *env) {
 **/
 atom *eval_if(atom *exp, atom *env) {
   atom *pre = eval(CADR(exp), env);
+  atom *ret;
   if (!IS(BOOLEAN, pre)) {
     ERRORF(exp->position, if语句需要boolean类型);
   }
   if (GET_VALUE(BOOLEAN, pre) == 1) {
     //true
-    return eval(CADDR(exp), env);
+    ret = eval(CADDR(exp), env);
   } else {
     //false
-    return eval(CADDDR(exp), env);
+    ret = eval(CADDDR(exp), env);
   }
+  free(exp);
+  return ret;
 }
 
 /**
@@ -104,7 +115,7 @@ atom *eval_lambda(atom *exp, atom *env) {
   atom *params = CADR(exp);
   atom *body = CDDR(exp);
   atom *new_lambda;
-  MAKE_FUNC(new_lambda, params, body, exp->position);
+  MAKE_FUNC(new_lambda, params, body, env, exp->position);
   return new_lambda;
 }
 
@@ -112,7 +123,9 @@ atom *eval_lambda(atom *exp, atom *env) {
    执行begin
 **/
 atom *eval_begin(atom *exp, atom *env) {
-  return eval_sequence(CDR(exp), env);
+  atom *ret = eval_sequence(CDR(exp), env);
+  free_atom(exp); //执行完成后回收
+  return ret;
 }
 
 /**
@@ -121,6 +134,7 @@ atom *eval_begin(atom *exp, atom *env) {
 atom *eval_cond(atom *exp, atom *env) {
   atom *body = CDR(exp);
   atom *now;
+  atom *ret;
   while (body != NULL) {
     now = CAR(body);
     atom *test = CAR(now);
@@ -131,7 +145,9 @@ atom *eval_cond(atom *exp, atom *env) {
 	//不是else，报错
 	ERRORF(now->position, 此处应该为ELSE);
       } else {
-	return eval_sequence(CDR(now), env);
+	ret = eval_sequence(CDR(now), env);
+	free_atom(exp);
+	return ret;
       }
     } else {
       atom *test_ret = eval(test, env);
@@ -141,7 +157,10 @@ atom *eval_cond(atom *exp, atom *env) {
       } else {
 	if (GET_VALUE(BOOLEAN, test_ret) == 1) {
 	  //true
-	  return eval_sequence(CDR(now), env);
+	  ret = eval_sequence(CDR(now), env);
+	  free_atom(test_ret);
+	  free_atom(exp);
+	  return ret;
 	} else {
 	  //false
 	  body = CDR(body);
@@ -166,7 +185,7 @@ atom *eval(atom *exp, atom *env) {
   if (is_self_evaluating(exp))
     return exp;
   else if (is_variable(exp))
-    return lookup_variable_value(exp, env);
+    return eval_variable(exp, env);
   else if (is_special(exp, "set!"))
     return eval_assignment(exp, env);
   else if (is_special(exp, "define"))
