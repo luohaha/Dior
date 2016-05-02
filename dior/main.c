@@ -40,7 +40,7 @@ void print_atom(atom *exp) {
    测试文件合法性
 **/
 FILE *file_test(char *filename) {
-  char *back = strchr(filename, '.');
+  char *back = strrchr(filename, '.');
   //printf("%s\n", back);
   int cmp;
   if (back == NULL || (cmp = strcmp(back+1, "dior")) != 0) {
