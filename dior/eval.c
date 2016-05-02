@@ -83,10 +83,10 @@ atom *eval_definition(atom *exp, atom *env) {
   if (!IS(SYMBOL, var)) {
     ERRORF(var->position, 被赋值变量格式不正确);
   }
-  atom *new_var;
-  COPY_ATOM(new_var, var); //先复制一份，已被后面回收
-  define_variable(new_var, val, env);
-  free_atom(exp); //回收已经被执行完的语句
+  //atom *new_var;
+  //COPY_ATOM(new_var, var); //先复制一份，已被后面回收
+  define_variable(var, val, env);
+  //free_atom(exp); //回收已经被执行完的语句
   return NULL;
 }
 
@@ -107,7 +107,7 @@ atom *eval_if(atom *exp, atom *env) {
     //false
     ret = eval(CADDDR(exp), env);
   }
-  free(exp);
+  //free(exp);
   return ret;
 }
 
@@ -127,7 +127,7 @@ atom *eval_lambda(atom *exp, atom *env) {
 **/
 atom *eval_begin(atom *exp, atom *env) {
   atom *ret = eval_sequence(CDR(exp), env);
-  free_atom(exp); //执行完成后回收
+  //free_atom(exp); //执行完成后回收
   return ret;
 }
 
@@ -149,7 +149,7 @@ atom *eval_cond(atom *exp, atom *env) {
 	ERRORF(now->position, 此处应该为ELSE);
       } else {
 	ret = eval_sequence(CDR(now), env);
-	free_atom(exp);
+	//free_atom(exp);
 	return ret;
       }
     } else {
@@ -161,8 +161,8 @@ atom *eval_cond(atom *exp, atom *env) {
 	if (GET_VALUE(BOOLEAN, test_ret) == 1) {
 	  //true
 	  ret = eval_sequence(CDR(now), env);
-	  free_atom(test_ret);
-	  free_atom(exp);
+	  //free_atom(test_ret);
+	  //free_atom(exp);
 	  return ret;
 	} else {
 	  //false

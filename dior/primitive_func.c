@@ -23,7 +23,7 @@ atom *padd(atom *args, atom *env) {
     }
     args = CDR(args);
   }
-  free_atom(args);
+  //free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -47,7 +47,7 @@ atom *pmul(atom *args, atom *env) {
     }
     args = CDR(args);
   }
-  free_atom(args);
+  //free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -68,7 +68,7 @@ atom *psub(atom *args, atom *env) {
   } else {
     sum = GET_VALUE(NUMBER, first) - GET_VALUE(NUMBER, second);
   }
-  free_atom(args);
+  //free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -89,7 +89,7 @@ atom *pdiv(atom *args, atom *env) {
   } else {
     sum = GET_VALUE(NUMBER, first) / GET_VALUE(NUMBER, second);
   }
-  free_atom(args);
+  //free_atom(args);
   atom *res;
   MAKE_ATOM(NUMBER, res, sum, line);
   return res;
@@ -118,7 +118,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
-    free_atom(args);
+    ////free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, ">")) == 0) {
     // >
@@ -128,7 +128,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
-    free_atom(args);
+    //free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, "<")) == 0) {
     // <
@@ -138,7 +138,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
-    free_atom(args);
+    //free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, ">=")) == 0) {
     // >=
@@ -148,7 +148,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
-    free_atom(args);
+    //free_atom(args);
     return res;
   } else if ((cmp = strcmp(sym, "<=")) == 0) {
     // <=
@@ -158,7 +158,7 @@ atom *pequal(atom *args, atom *env, const char *sym) {
     } else {
       MAKE_ATOM(BOOLEAN, res, 0, args->position);
     }
-    free_atom(args);
+    //free_atom(args);
     return res;
   }
   ERRORF(args->position, 比较符号不正确);
@@ -184,7 +184,7 @@ atom *cons(atom *exp, atom *env) {
   atom *second = eval(CADDR(exp), env);
   atom *ret;
   MAKE_PAIR(ret, first, second, exp->position);
-  free_atom(exp);
+  // free_atom(exp);
   return ret;
 }
 

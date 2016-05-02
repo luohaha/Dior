@@ -1,2 +1,0 @@
-(define dou (lambda (x) (* x x)))
-(define set-car! (lambda (x y) (set! x y)))

@@ -8,6 +8,7 @@
 /**
    回收atom
 **/
+/*
 void free_atom(atom *exp) {
   if (exp == NULL)
     return;
@@ -33,3 +34,4 @@ void free_atom(atom *exp) {
     free(exp);
   }
 }
+*/

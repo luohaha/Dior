@@ -167,7 +167,7 @@ atom *is_type(atom *exp, atom *env, atom_type type);
 atom *append(atom *exp, atom *env);
 
 //gc.c
-void free_atom(atom *exp);
+//void free_atom(atom *exp);
 //main.c
 void print_atom(atom *exp);
 FILE *file_test(char *filename);

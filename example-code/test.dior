@@ -1,6 +1,0 @@
-;(require "math.dior")
-(define a (list 1 2 3))
-(define b (append a (list 3 4)))
-(println b)
-(define a (lambda (x) (* x x)))
-(a 45)
