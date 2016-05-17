@@ -69,6 +69,7 @@ struct __atom {
   atom_type type;
   atom_data data;
   int position;//atom出现在文件中的行数，用来debug
+  char gc_flag; //Mark sweep的标记
 };
 
 #define IS(t, x) (x->type == t)
@@ -94,18 +95,21 @@ struct __atom {
   x = (atom*) malloc(sizeof(atom)); \
   x->type = t; \
   x->position = p; \
+  x->gc_flag = 0; \
   SET_VALUE(t, x, v)
 
 #define COPY_ATOM(new, old) \
   new = (atom*) malloc(sizeof(atom)); \
   new->type = old->type; \
   new->position = old->position; \
+  new->gc_flag = 0; \
   new->data = old->data
   
 #define MAKE_PAIR(x, car, cdr, p)	    \
   x = (atom*) malloc(sizeof(atom)); \
   x->type = PAIR; \
   x->position = p; \
+  x->gc_flag = 0; \
   SET_CAR(x, car); \
   SET_CDR(x, cdr)
   
@@ -113,6 +117,7 @@ struct __atom {
   x = (atom*) malloc(sizeof(atom)); \
   x->type = FUNCTION; \
   x->position = po;		  \
+  x->gc_flag = 0;    \
   DATA(x).FUNCTION.params = p;	  \
   DATA(x).FUNCTION.body = b;      \
   DATA(x).FUNCTION.env = e
