@@ -30,6 +30,11 @@ atom *lookup_variable_value_pair(atom *var, atom *env) {
     atom *each_var = CAR(f);
     atom *each_value = CDR(f);
     while (each_var != NULL && each_value != NULL) {
+      if (CAR(each_var) == NULL) {
+	each_var = CDR(each_var);
+	each_value = CDR(each_value);
+	continue;
+      }
       int cmp = strcmp(GET_VALUE(SYMBOL, CAR(each_var)), GET_VALUE(SYMBOL, var));
       if (cmp == 0)
 	return each_value;
