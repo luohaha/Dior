@@ -30,11 +30,21 @@ void pass_note(FILE *input, char *c) {
 **/
 void read_word(FILE *input, char c) {
   int i = 0;
+  char pair = 0;
   lex_list[lex_index] = malloc(MAX_WORD_SIZE);
   lex_list[lex_index][i++] = c;
+
+/**
+    pair 被用于判断是否是一个字符串，若是，则中间可以包含空格
+**/
+  if (c == '"')
+      pair = 1;
   while ((c = getc(input)) != EOF && c != ')' && c != '(' \
-	 && c != ';' && !isspace(c)) {
+	 && c != ';' && (!isspace(c) || pair)) {
     lex_list[lex_index][i++] = c;
+    if (c == '"') {
+        pair = 1 - pair;
+    }
   }
   lex_list[lex_index][i] = '\0';
   lex_list_row[lex_index++] = line;
