@@ -2,13 +2,13 @@
 
 A kind of Lisp.
 
-##How to use
+## How to use
 
 ```
 cd dior & make
 ```
 
-##Support
+## Support
 
 ```scheme
 if                (if predicate then_value else_value)
@@ -44,7 +44,7 @@ print
 println
 ```
 
-##example
+## example
 
 Fibonacci
 
@@ -71,5 +71,5 @@ Fibonacci
 (fib-2 100)
 ```
 
-##Todo
+## Todo
 `macro` and `gc`
